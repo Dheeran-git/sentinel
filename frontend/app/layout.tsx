@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist } from "next/font/google";
 import "./globals.css";
 
@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   title: "SENTINEL — See it. Prove it. Act on it.",
   description:
     "Report a civic environmental violation and watch an agent identify the law, draft the action, and prepare it for your approval.",
+  manifest: "/manifest.webmanifest",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#14532D",
 };
 
 export default function RootLayout({
