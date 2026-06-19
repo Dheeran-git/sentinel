@@ -1,7 +1,10 @@
 .env
+.env.txt
 .venv/
 __pycache__/
 *.pyc
 .chroma/
 *.sqlite
 data/index/
+sentinel/data/index/
+sentinel/data/artifacts/
