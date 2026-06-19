@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useMission } from "@/lib/useMission";
 import { Capture } from "@/components/Capture";
@@ -8,6 +7,9 @@ import { MissionFeed } from "@/components/MissionFeed";
 import { Clarify } from "@/components/Clarify";
 import { ApproveGate } from "@/components/ApproveGate";
 import { Result } from "@/components/Result";
+import { Hero } from "@/components/Hero";
+import { StickyNav } from "@/components/StickyNav";
+import { FadeContent } from "@/components/reactbits/FadeContent";
 
 // Leaflet must run client-only; this page is already a Client Component.
 const ImpactMap = dynamic(
@@ -25,12 +27,7 @@ const ImpactMap = dynamic(
 /* ── Brand mark ───────────────────────────────────────────── */
 function Leaf({ className = "" }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-      className={className}
-    >
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden className={className}>
       <path
         d="M20 4C9 4 4 10.5 4 17c0 1.2.2 2.3.5 3 .3-3.7 2.4-7.4 6-9.6 2.7-1.7 6-2.6 9.5-2.9-2.8 1-5 2.4-6.6 4-2 2-3 4.4-3.4 7 3.8.2 7-.7 9.3-3C28 11 22 4 20 4Z"
         fill="currentColor"
@@ -132,30 +129,13 @@ const STEPS = [
   },
 ];
 
-/* ── Motion ───────────────────────────────────────────────── */
-const container: Variants = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
-  },
-};
-
-const rise: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
 /* ── Interactive case section ─────────────────────────────── */
 function CaseSection() {
   const { steps, interrupt, done, running, start, resume } = useMission();
   const hasActivity = steps.length > 0 || running || !!interrupt || !!done;
 
   return (
-    <section id="case" className="mt-24 w-full scroll-mt-20 text-left">
+    <section id="case" className="mt-28 w-full scroll-mt-24 text-left">
       <div className="mb-8 flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between">
         <h2 className="text-2xl sm:text-3xl">Open a case</h2>
         <p className="text-sm text-stone-600">
@@ -197,8 +177,11 @@ function CaseSection() {
 
 export default function Home() {
   return (
-    <div className="relative flex min-h-screen flex-1 flex-col overflow-hidden">
-      {/* Calm cream→stone radial wash + faint dot-grid */}
+    <div
+      id="top"
+      className="relative flex min-h-screen flex-1 flex-col overflow-hidden"
+    >
+      {/* Calm cream→stone radial wash */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
@@ -207,9 +190,10 @@ export default function Home() {
             "radial-gradient(120% 80% at 50% -10%, #fffdf7 0%, #faf7ef 42%, #f4f0e6 100%)",
         }}
       />
+      {/* Slow-drifting, very low-opacity stone/green dot-grid — alive but calm */}
       <div
         aria-hidden
-        className="dot-grid pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] opacity-70 [mask-image:radial-gradient(70%_60%_at_50%_0%,#000_0%,transparent_75%)]"
+        className="dot-grid-drift pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px] opacity-70 [mask-image:radial-gradient(70%_60%_at_50%_0%,#000_0%,transparent_78%)]"
       />
       {/* Soft clay glow, warm not cool */}
       <div
@@ -220,6 +204,9 @@ export default function Home() {
             "radial-gradient(circle, rgba(234,154,133,0.35) 0%, transparent 70%)",
         }}
       />
+
+      {/* ── Condensed sticky nav (appears on scroll) ────── */}
+      <StickyNav />
 
       {/* ── Nav ─────────────────────────────────────────── */}
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6 sm:px-8">
@@ -232,65 +219,12 @@ export default function Home() {
         </a>
       </header>
 
-      {/* ── Hero ────────────────────────────────────────── */}
-      <motion.main
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center px-6 pb-24 pt-12 text-center sm:px-8 sm:pt-20"
-      >
-        <motion.div
-          variants={rise}
-          className="mb-7 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-paper/80 px-4 py-1.5 text-sm text-stone-600 backdrop-blur"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-clay" />
-          A civic environmental agent
-        </motion.div>
-
-        <motion.h1
-          variants={rise}
-          className="max-w-4xl text-balance text-4xl leading-[1.05] sm:text-6xl lg:text-7xl"
-        >
-          Report a civic environmental violation.{" "}
-          <span className="italic text-forest-soft">Watch an agent act on it.</span>
-        </motion.h1>
-
-        <motion.p
-          variants={rise}
-          className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-stone-600"
-        >
-          Snap a photo of dumping, burning, or a choked drain. SENTINEL finds the
-          law it breaks, drafts the complaint to the right authority, and waits
-          for your approval before it acts.
-        </motion.p>
-
-        <motion.div
-          variants={rise}
-          id="start"
-          className="mt-9 flex flex-col items-center gap-3 sm:flex-row"
-        >
-          <a href="#case" className="btn-primary w-full sm:w-auto">
-            Open a case
-            <SendIcon />
-          </a>
-          <a href="#how" className="btn-ghost w-full sm:w-auto">
-            See how it works
-          </a>
-        </motion.div>
-
-        <motion.p
-          variants={rise}
-          className="mt-5 text-sm text-stone-600"
-        >
-          No account needed to start. You approve every action before it is sent.
-        </motion.p>
+      {/* ── Hero + sections ─────────────────────────────── */}
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center px-6 pb-28 pt-12 text-center sm:px-8 sm:pt-20">
+        <Hero />
 
         {/* ── How it works ──────────────────────────────── */}
-        <motion.section
-          variants={rise}
-          id="how"
-          className="mt-24 w-full scroll-mt-24 text-left"
-        >
+        <FadeContent id="how" className="mt-28 w-full scroll-mt-24 text-left">
           <div className="mb-8 flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between">
             <h2 className="text-2xl sm:text-3xl">How it works</h2>
             <p className="text-sm text-stone-600">
@@ -321,11 +255,13 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </motion.section>
+        </FadeContent>
 
         {/* ── Interactive case flow ─────────────────────── */}
-        <CaseSection />
-      </motion.main>
+        <FadeContent className="w-full">
+          <CaseSection />
+        </FadeContent>
+      </main>
 
       {/* ── Footer ──────────────────────────────────────── */}
       <footer className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 border-t border-stone-300/70 px-6 py-8 text-sm text-stone-600 sm:flex-row sm:px-8">
