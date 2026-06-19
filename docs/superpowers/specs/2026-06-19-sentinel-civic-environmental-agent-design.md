@@ -138,16 +138,18 @@ Frontend:
 - Provider: Google Gemini via `langchain-google-genai` (free tier, no credit card,
   multimodal vision built in).
 - Default workhorse: Gemini 2.5 Flash (~1,500 requests/day free; vision; fast).
-- Optional max-reasoning: Gemini 2.5 Pro (smartest free; ~50 requests/day free)
-  reserved for the single hardest node (law-grounding), if desired.
-- Rationale: best free multimodal intelligence in 2026 without hitting limits
-  mid-demo. Verified against current free-tier comparisons (June 2026).
+- Law grounding: also Gemini 2.5 Flash. NOTE: Google's free tier grants zero
+  access to gemini-2.5-pro (a 429 with limit:0), so Pro cannot be used on the
+  free tier. The original plan reserved Pro for grounding; in practice grounding
+  runs on Flash, which handles the cited-grounding task well (verified end-to-end).
+- Rationale: best free multimodal intelligence in 2026; using Flash for every
+  node keeps the whole pipeline comfortably within the free quota.
 
 ## Tech stack
 
 - Python 3.13, managed with `uv` (`uv run`, `uv add`).
 - Orchestration: LangGraph `StateGraph` + `interrupt()` + SQLite checkpointer.
-- LLM: Gemini 2.5 Flash (and optional Pro) via `langchain-google-genai`.
+- LLM: Gemini 2.5 Flash for all nodes via `langchain-google-genai` (Gemini 2.5 Pro is not available on the free tier).
 - RAG: Chroma vector store + local embeddings (sentence-transformers, offline and
   free; no API quota). Gemini free embeddings are an alternative. Chunks tagged
   with metadata `{act, section, authority}`.
