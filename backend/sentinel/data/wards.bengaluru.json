@@ -1,0 +1,58 @@
+[
+  {
+    "zone": "East",
+    "ward": "Shivajinagar",
+    "authority": "BBMP East Solid Waste Management",
+    "contact": "bbmp.east@bbmp.gov.in",
+    "centroid": { "lat": 12.98553, "lng": 77.60545 }
+  },
+  {
+    "zone": "West",
+    "ward": "Rajajinagar",
+    "authority": "BBMP West Solid Waste Management",
+    "contact": "bbmp.west@bbmp.gov.in",
+    "centroid": { "lat": 13.00052, "lng": 77.54962 }
+  },
+  {
+    "zone": "South",
+    "ward": "Jayanagar",
+    "authority": "BBMP South Solid Waste Management",
+    "contact": "bbmp.south@bbmp.gov.in",
+    "centroid": { "lat": 12.92927, "lng": 77.58242 }
+  },
+  {
+    "zone": "Bommanahalli",
+    "ward": "Bommanahalli",
+    "authority": "BBMP Bommanahalli Solid Waste Management",
+    "contact": "bbmp.bommanahalli@bbmp.gov.in",
+    "centroid": { "lat": 12.90346, "lng": 77.62300 }
+  },
+  {
+    "zone": "Mahadevapura",
+    "ward": "Mahadevapura",
+    "authority": "BBMP Mahadevapura Solid Waste Management",
+    "contact": "bbmp.mahadevapura@bbmp.gov.in",
+    "centroid": { "lat": 12.99654, "lng": 77.69272 }
+  },
+  {
+    "zone": "Rajarajeshwari Nagar",
+    "ward": "Rajarajeshwari Nagar",
+    "authority": "BBMP Rajarajeshwari Nagar Solid Waste Management",
+    "contact": "bbmp.rrnagar@bbmp.gov.in",
+    "centroid": { "lat": 12.92744, "lng": 77.51552 }
+  },
+  {
+    "zone": "Dasarahalli",
+    "ward": "Dasarahalli",
+    "authority": "BBMP Dasarahalli Solid Waste Management",
+    "contact": "bbmp.dasarahalli@bbmp.gov.in",
+    "centroid": { "lat": 13.04648, "lng": 77.51770 }
+  },
+  {
+    "zone": "Yelahanka",
+    "ward": "Yelahanka",
+    "authority": "BBMP Yelahanka Solid Waste Management",
+    "contact": "bbmp.yelahanka@bbmp.gov.in",
+    "centroid": { "lat": 13.10070, "lng": 77.59635 }
+  }
+]

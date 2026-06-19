@@ -1,0 +1,98 @@
+[
+  {
+    "name": "E-Parisaraa Pvt. Ltd.",
+    "type": "e-waste recycler",
+    "address": "B-41/1, 3rd Stage, Peenya Industrial Estate, Bengaluru 560058",
+    "contact": "recycle@ewasteindia.com",
+    "lat": 13.03298,
+    "lng": 77.53318
+  },
+  {
+    "name": "TES-AMM India Pvt. Ltd.",
+    "type": "e-waste recycler",
+    "address": "Survey No. 118, Site No. 8, Mookambika Temple Road, Machohalli Forest Gate, Magadi Main Road, Bengaluru 560091",
+    "contact": "",
+    "lat": 12.97565,
+    "lng": 77.55535
+  },
+  {
+    "name": "RecycleKaro (Sompura Facility)",
+    "type": "e-waste recycler",
+    "address": "Sompura KIADB Industrial Area, Nelamangala Taluk, Bengaluru Rural 562111",
+    "contact": "",
+    "lat": 13.09797,
+    "lng": 77.39456
+  },
+  {
+    "name": "Virogreen India Pvt. Ltd.",
+    "type": "e-waste recycler",
+    "address": "Whitefield, Bengaluru 560066",
+    "contact": "",
+    "lat": 12.99574,
+    "lng": 77.75795
+  },
+  {
+    "name": "Cerebra Integrated Technologies Ltd.",
+    "type": "e-waste recycler",
+    "address": "Plot No. 41 to 46, Appasandra Village, KIADB Industrial Area, Narasapura, Kolar Taluk, Karnataka 563133",
+    "contact": "",
+    "lat": 13.21667,
+    "lng": 77.90000
+  },
+  {
+    "name": "Saahas Zero Waste",
+    "type": "e-waste recycler",
+    "address": "No. 3, 1st Cross, KHB Colony, Bannerghatta Road, Bengaluru 560029",
+    "contact": "info@saahas.org",
+    "lat": 12.89774,
+    "lng": 77.59698
+  },
+  {
+    "name": "Greens Recology Company",
+    "type": "e-waste recycler",
+    "address": "Plot No. 415, KIADB Vasanthanarasapura Industrial Area, Tumakuru Taluk, Karnataka 572138",
+    "contact": "",
+    "lat": 13.26475,
+    "lng": 77.55872
+  },
+  {
+    "name": "Bengaluru E-Waste Pvt. Ltd.",
+    "type": "e-waste recycler",
+    "address": "Jigani Industrial Area, Bengaluru 562106",
+    "contact": "",
+    "lat": 12.78041,
+    "lng": 77.63557
+  },
+  {
+    "name": "E-Scrappy Recyclers",
+    "type": "e-waste recycler",
+    "address": "Electronic City Phase 1, Bengaluru 560100",
+    "contact": "",
+    "lat": 12.84876,
+    "lng": 77.64825
+  },
+  {
+    "name": "i7 EWaste Recyclers",
+    "type": "e-waste recycler",
+    "address": "KIADB Industrial Area, Nelamangala, Bengaluru 562123",
+    "contact": "",
+    "lat": 13.09797,
+    "lng": 77.39456
+  },
+  {
+    "name": "Zolopik Recycling",
+    "type": "e-waste recycler",
+    "address": "Bommanahalli, Bengaluru 560068",
+    "contact": "",
+    "lat": 12.90346,
+    "lng": 77.62300
+  },
+  {
+    "name": "Ash Recyclers",
+    "type": "e-waste recycler",
+    "address": "No. 3, KSSIDC Industrial Estate, Rajajinagar, Bengaluru 560010",
+    "contact": "",
+    "lat": 13.00052,
+    "lng": 77.54962
+  }
+]
