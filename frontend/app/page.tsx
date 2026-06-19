@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useMission } from "@/lib/useMission";
 import { Capture } from "@/components/Capture";
@@ -131,8 +132,20 @@ const STEPS = [
 
 /* ── Interactive case section ─────────────────────────────── */
 function CaseSection() {
-  const { steps, interrupt, done, running, start, resume } = useMission();
+  const { steps, interrupt, done, running, error, start, resume, reset } =
+    useMission();
   const hasActivity = steps.length > 0 || running || !!interrupt || !!done;
+
+  // Remember the routing authority from the approve gate so the Result
+  // timeline can name it after the mission completes.
+  const authorityRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (interrupt?.type === "approve") {
+      const a =
+        interrupt.artifacts.authority ?? interrupt.artifacts.routing?.authority;
+      if (a) authorityRef.current = a;
+    }
+  }, [interrupt]);
 
   return (
     <section id="case" className="mt-28 w-full scroll-mt-24 text-left">
@@ -162,13 +175,28 @@ function CaseSection() {
               running={running}
             />
           )}
-          {done && <Result trackingId={done.tracking_id} />}
+          {done && (
+            <Result
+              trackingId={done.tracking_id}
+              authority={authorityRef.current}
+              onFileAnother={reset}
+            />
+          )}
+
+          {error && (
+            <div className="rounded-2xl border border-clay/40 bg-clay/[0.06] px-5 py-4 text-sm text-stone-900">
+              <p className="font-medium text-clay">Could not reach the agent</p>
+              <p className="mt-1 text-stone-600">
+                {error} You can try opening the case again once it is back.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Right: live feed + impact map */}
         <div className="flex flex-col gap-6">
           {hasActivity && <MissionFeed steps={steps} running={running} />}
-          <ImpactMap />
+          <ImpactMap refreshKey={done?.tracking_id} />
         </div>
       </div>
     </section>
