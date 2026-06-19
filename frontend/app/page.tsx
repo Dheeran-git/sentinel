@@ -1,6 +1,26 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
+import dynamic from "next/dynamic";
+import { useMission } from "@/lib/useMission";
+import { Capture } from "@/components/Capture";
+import { MissionFeed } from "@/components/MissionFeed";
+import { Clarify } from "@/components/Clarify";
+import { ApproveGate } from "@/components/ApproveGate";
+import { Result } from "@/components/Result";
+
+// Leaflet must run client-only; this page is already a Client Component.
+const ImpactMap = dynamic(
+  () => import("@/components/ImpactMap").then((m) => m.ImpactMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="card grid h-[376px] place-items-center text-sm text-stone-600">
+        Loading impact map…
+      </div>
+    ),
+  },
+);
 
 /* ── Brand mark ───────────────────────────────────────────── */
 function Leaf({ className = "" }: { className?: string }) {
@@ -129,6 +149,52 @@ const rise: Variants = {
   },
 };
 
+/* ── Interactive case section ─────────────────────────────── */
+function CaseSection() {
+  const { steps, interrupt, done, running, start, resume } = useMission();
+  const hasActivity = steps.length > 0 || running || !!interrupt || !!done;
+
+  return (
+    <section id="case" className="mt-24 w-full scroll-mt-20 text-left">
+      <div className="mb-8 flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <h2 className="text-2xl sm:text-3xl">Open a case</h2>
+        <p className="text-sm text-stone-600">
+          Watch the agent reason, then approve before anything is sent.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Left: capture + gates + result */}
+        <div className="flex flex-col gap-6">
+          <Capture onStart={start} running={running} />
+
+          {interrupt?.type === "clarify" && (
+            <Clarify
+              question={interrupt.question}
+              onResume={resume}
+              running={running}
+            />
+          )}
+          {interrupt?.type === "approve" && (
+            <ApproveGate
+              artifacts={interrupt.artifacts}
+              onResume={resume}
+              running={running}
+            />
+          )}
+          {done && <Result trackingId={done.tracking_id} />}
+        </div>
+
+        {/* Right: live feed + impact map */}
+        <div className="flex flex-col gap-6">
+          {hasActivity && <MissionFeed steps={steps} running={running} />}
+          <ImpactMap />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <div className="relative flex min-h-screen flex-1 flex-col overflow-hidden">
@@ -161,7 +227,7 @@ export default function Home() {
         <p className="hidden text-sm text-stone-600 sm:block">
           <span className="text-forest-soft">See it.</span> Prove it. Act on it.
         </p>
-        <a href="#start" className="btn-ghost hidden text-sm sm:inline-flex">
+        <a href="#case" className="btn-ghost hidden text-sm sm:inline-flex">
           Open a case
         </a>
       </header>
@@ -203,10 +269,10 @@ export default function Home() {
           id="start"
           className="mt-9 flex flex-col items-center gap-3 sm:flex-row"
         >
-          <button className="btn-primary w-full sm:w-auto">
+          <a href="#case" className="btn-primary w-full sm:w-auto">
             Open a case
             <SendIcon />
-          </button>
+          </a>
           <a href="#how" className="btn-ghost w-full sm:w-auto">
             See how it works
           </a>
@@ -256,6 +322,9 @@ export default function Home() {
             ))}
           </div>
         </motion.section>
+
+        {/* ── Interactive case flow ─────────────────────── */}
+        <CaseSection />
       </motion.main>
 
       {/* ── Footer ──────────────────────────────────────── */}
