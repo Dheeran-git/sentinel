@@ -112,6 +112,16 @@ def act_node(state) -> dict:
             "dossier_path": str(dossier),
             "routing": routing,
             "authority": g.authority,
+            "issue": {
+                "category": issue.category.value,
+                "severity": issue.severity,
+                "confidence": issue.confidence,
+                "hazards": issue.hazards,
+            },
+            "citations": [
+                {"act": c.act, "section": c.section, "why": c.why} for c in g.citations
+            ],
+            "sdgs": g.sdgs,
         },
         "events": [_event("act", "Drafted complaint, dossier, and routing")],
     }
