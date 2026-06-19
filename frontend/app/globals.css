@@ -34,6 +34,7 @@
 html {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -122,11 +123,106 @@ h3 {
   background-size: 26px 26px;
 }
 
+/* ── React Bits (palette-locked equivalents) ──────────────── */
+
+/* Click Spark — terracotta rays bursting outward */
+.rb-spark-ray {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 9px;
+  border-radius: 2px;
+  transform-origin: center;
+  animation: rb-spark 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes rb-spark {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(var(--rb-tx), var(--rb-ty))
+      scale(0.4);
+  }
+}
+
+/* Star Border — soft travelling sheen around a pill */
+.rb-star-border {
+  background: linear-gradient(
+    var(--color-forest),
+    var(--color-forest)
+  );
+}
+.rb-star-glow {
+  position: absolute;
+  inset: -150%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--rb-star) 28deg,
+    transparent 70deg
+  );
+  animation: rb-star-spin 3.4s linear infinite;
+  z-index: 0;
+}
+@keyframes rb-star-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Spotlight Card — warm radial glow following the cursor */
+.rb-spotlight-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    260px circle at var(--rb-x, 50%) var(--rb-y, 50%),
+    var(--rb-glow),
+    transparent 70%
+  );
+}
+.rb-spotlight:hover .rb-spotlight-layer {
+  opacity: 1;
+}
+
+/* ── Leaflet — forest pin + warm popups ───────────────────── */
+.sentinel-pin-dot {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: var(--color-forest);
+  border: 3px solid var(--color-paper);
+  box-shadow: 0 2px 8px rgba(20, 83, 45, 0.4);
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  box-shadow: var(--shadow-lift);
+  background: var(--color-paper);
+}
+.leaflet-popup-content {
+  margin: 12px 14px;
+}
+.leaflet-popup-tip {
+  background: var(--color-paper);
+}
+.leaflet-container {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
+  }
+  .rb-star-glow {
+    animation: none;
+    opacity: 0.5;
   }
 }
