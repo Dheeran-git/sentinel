@@ -1,6 +1,11 @@
-"""Ground an issue in retrieved law using the max-reasoning model."""
+"""Ground an issue in retrieved law.
+
+Uses the Flash model: the free Gemini tier does not grant access to
+gemini-2.5-pro (free-tier limit is zero), so grounding runs on Flash, which
+handles the cited-grounding task well.
+"""
 from sentinel.knowledge.retriever import retrieve
-from sentinel.llm import pro
+from sentinel.llm import flash
 from sentinel.models import Grounding, IssueReport
 
 _PROMPT = (
@@ -33,7 +38,7 @@ def ground(issue: IssueReport, attempt: int = 0) -> Grounding:
         f"{_PROMPT}\n\nVIOLATION:\n{issue.description} "
         f"(category: {issue.category.value})\n\nLAW EXCERPTS:\n{context}"
     )
-    return pro().with_structured_output(Grounding).invoke(message)
+    return flash().with_structured_output(Grounding).invoke(message)
 
 
 def is_grounded(g: Grounding) -> bool:

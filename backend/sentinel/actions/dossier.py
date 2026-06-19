@@ -29,32 +29,46 @@ def build_dossier(
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     tmp_img = out_dir / f"_img_{tracking_id}.jpg"
-    Image.open(BytesIO(image_bytes)).convert("RGB").save(tmp_img, "JPEG")
+    pil = Image.open(BytesIO(image_bytes)).convert("RGB")
+    pil.save(tmp_img, "JPEG")
+    w_px, h_px = pil.size
 
     pdf = FPDF()
     pdf.add_page()
+    left = pdf.l_margin
+    right = pdf.w - pdf.r_margin
+
     pdf.set_text_color(*FOREST)
     pdf.set_font("Helvetica", "B", 20)
     pdf.cell(0, 12, _s("SENTINEL Evidence Dossier"), new_x="LMARGIN", new_y="NEXT")
     pdf.set_draw_color(*CLAY)
     pdf.set_line_width(1)
-    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-    pdf.ln(4)
-    pdf.set_text_color(90, 90, 90)
-    pdf.set_font("Helvetica", "", 10)
-    pdf.cell(0, 6, _s(f"Case {tracking_id} | {address} | {timestamp}"), new_x="LMARGIN", new_y="NEXT")
-    pdf.ln(2)
-    pdf.image(str(tmp_img), w=120)
+    pdf.line(left, pdf.get_y(), right, pdf.get_y())
     pdf.ln(4)
 
+    pdf.set_text_color(90, 90, 90)
+    pdf.set_font("Helvetica", "", 10)
+    pdf.set_x(left)
+    pdf.multi_cell(0, 6, _s(f"Case {tracking_id}  |  {address}  |  {timestamp}"),
+                   new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+
+    img_w = 120
+    img_h = img_w * h_px / w_px
+    img_y = pdf.get_y()
+    pdf.image(str(tmp_img), x=left, y=img_y, w=img_w)
+    pdf.set_xy(left, img_y + img_h + 4)
+
     def section(title: str, body_lines: list[str]) -> None:
+        pdf.set_x(left)
         pdf.set_text_color(*FOREST)
         pdf.set_font("Helvetica", "B", 13)
-        pdf.cell(0, 8, _s(title), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(0, 8, _s(title), new_x="LMARGIN", new_y="NEXT")
         pdf.set_text_color(40, 40, 40)
         pdf.set_font("Helvetica", "", 11)
         for line in body_lines:
-            pdf.multi_cell(0, 6, _s(line))
+            pdf.set_x(left)
+            pdf.multi_cell(0, 6, _s(line), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
 
     section("Violation", [f"{issue.description} (severity: {issue.severity})"])
