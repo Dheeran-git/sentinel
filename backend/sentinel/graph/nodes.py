@@ -8,8 +8,10 @@ from langgraph.types import interrupt
 from sentinel.actions.complaint import draft_complaint
 from sentinel.actions.dossier import build_dossier
 from sentinel.actions.routing import nearest_recyclers, ward_authority
+from sentinel.config import settings
 from sentinel.delivery.casestore import CaseStore
-from sentinel.geo.geocode import reverse
+from sentinel.delivery.email import send_demo_safe
+from sentinel.geo.geocode import geocode, reverse
 from sentinel.investigation.grounding import ground
 from sentinel.models import Grounding, IssueReport, ViolationCategory
 from sentinel.perception.location import resolve_location
@@ -17,6 +19,8 @@ from sentinel.perception.vision import perceive
 
 ART_DIR = Path(__file__).resolve().parent.parent / "data" / "artifacts"
 CASES_DB = Path(__file__).resolve().parent.parent / "data" / "cases.sqlite"
+
+BENGALURU_CENTRE = (12.9716, 77.5946)
 
 
 def _event(node: str, text: str) -> dict:
@@ -42,22 +46,45 @@ def perceive_node(state) -> dict:
     }
 
 
+def resolve_clarification_location(answer, existing):
+    """Resolve a location from a clarification answer.
+
+    Keeps an existing location if present. Accepts a dict with a 'location'
+    key, or a free-text address (geocoded). Falls back to the city centre so a
+    mission never proceeds with a missing location.
+    """
+    if existing is not None:
+        return existing
+    if isinstance(answer, dict) and "location" in answer:
+        return tuple(answer["location"])
+    if isinstance(answer, str) and answer.strip():
+        loc = geocode(answer.strip())
+        if loc:
+            return loc
+    return BENGALURU_CENTRE
+
+
 def ask_user_node(state) -> dict:
     answer = interrupt({"type": "clarify", "question": state["clarification_question"]})
-    update = {"needs_clarification": False, "user_answer": str(answer),
-              "events": [_event("clarify", "Got your clarification")]}
-    if isinstance(answer, dict) and "location" in answer:
-        update["location"] = tuple(answer["location"])
+    events = [_event("clarify", "Got your clarification")]
+    update = {"needs_clarification": False, "user_answer": str(answer)}
+    if state.get("location") is None:
+        loc = resolve_clarification_location(answer, None)
+        update["location"] = loc
+        if loc == BENGALURU_CENTRE:
+            events.append(_event("clarify",
+                "Could not resolve an exact location; using Bengaluru city centre. Please verify."))
+    update["events"] = events
     return update
 
 
 def investigate_node(state) -> dict:
     issue = IssueReport(**state["issue"])
-    g: Grounding = ground(issue)
-    attempts = state.get("grounding_attempts", 0) + 1
+    attempts = state.get("grounding_attempts", 0)
+    g: Grounding = ground(issue, attempt=attempts)
     return {
         "grounding": g.model_dump(),
-        "grounding_attempts": attempts,
+        "grounding_attempts": attempts + 1,
         "events": [_event("investigate",
                           f"Grounded to {len(g.citations)} rule(s); "
                           f"authority {g.authority or 'unknown'}")],
@@ -67,7 +94,7 @@ def investigate_node(state) -> dict:
 def act_node(state) -> dict:
     issue = IssueReport(**state["issue"])
     g = Grounding(**state["grounding"])
-    lat, lng = state["location"]
+    lat, lng = state.get("location") or BENGALURU_CENTRE
     address = reverse(lat, lng)
     img = base64.b64decode(state["image_b64"])
     tracking_id = "SNT-PREVIEW"
@@ -114,9 +141,27 @@ def refine_node(state) -> dict:
 def execute_node(state) -> dict:
     issue = IssueReport(**state["issue"])
     g = Grounding(**state["grounding"])
-    lat, lng = state["location"]
+    lat, lng = state.get("location") or BENGALURU_CENTRE
     store = CaseStore(CASES_DB)
     tid = store.new_case(category=issue.category.value, lat=lat, lng=lng,
                          authority=g.authority, address=state["address"])
+    sent = False
+    try:
+        if settings.demo_inbox and settings.smtp_user and settings.smtp_password:
+            dossier = state.get("artifacts", {}).get("dossier_path")
+            send_demo_safe(
+                subject=f"Civic environmental complaint {tid}: {issue.category.value}",
+                body=state["artifacts"]["complaint"],
+                attachment=Path(dossier) if dossier else None,
+                demo_inbox=settings.demo_inbox,
+                smtp_user=settings.smtp_user,
+                smtp_password=settings.smtp_password,
+                host=settings.smtp_host,
+                port=settings.smtp_port,
+            )
+            sent = True
+    except Exception:
+        sent = False
+    tail = " Email sent to demo inbox." if sent else " Logged (email not configured)."
     return {"tracking_id": tid, "status": "submitted",
-            "events": [_event("execute", f"Submitted (demo-safe). Tracking {tid}")]}
+            "events": [_event("execute", f"Submitted (demo-safe). Tracking {tid}.{tail}")]}

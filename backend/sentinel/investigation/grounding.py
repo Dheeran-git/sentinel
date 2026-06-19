@@ -13,13 +13,21 @@ _PROMPT = (
 )
 
 
-def _query_for(issue: IssueReport) -> str:
-    return f"{issue.category.value}. {issue.description}. hazards: {', '.join(issue.hazards)}"
+def _query_for(issue: IssueReport, attempt: int = 0) -> str:
+    base = f"{issue.category.value}. {issue.description}. hazards: {', '.join(issue.hazards)}"
+    if attempt >= 1:
+        base += (" environmental violation prohibition disposal penalty "
+                 "enforcement authority pollution rule")
+    return base
 
 
-def ground(issue: IssueReport) -> Grounding:
-    """Retrieve law and produce a grounded, cited Grounding object."""
-    hits = retrieve(_query_for(issue), k=4)
+def ground(issue: IssueReport, attempt: int = 0) -> Grounding:
+    """Retrieve law and produce a grounded, cited Grounding object.
+
+    On retry (attempt >= 1) the query is broadened and more chunks are pulled.
+    """
+    k = 4 if attempt == 0 else 6
+    hits = retrieve(_query_for(issue, attempt), k=k)
     context = "\n\n".join(f"[{h.act} - {h.section}]\n{h.text}" for h in hits)
     message = (
         f"{_PROMPT}\n\nVIOLATION:\n{issue.description} "
