@@ -34,6 +34,7 @@ export function Clarify({
   const [locating, setLocating] = useState(false);
 
   function useMyLocation() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {

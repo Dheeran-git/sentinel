@@ -60,6 +60,7 @@ export function Capture({
       const result = reader.result as string;
       const b64 = result.split(",")[1];
       setPreview(result);
+      if (typeof navigator === "undefined" || !navigator.geolocation) { onStart(b64); return; }
       setLocating(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
