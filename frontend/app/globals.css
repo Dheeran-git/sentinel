@@ -123,6 +123,73 @@ h3 {
   background-size: 26px 26px;
 }
 
+/* Slow-drifting ambient dot-grid for the hero — calm, low opacity */
+.dot-grid-drift {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(20, 83, 45, 0.06) 1px,
+    transparent 1.4px
+  );
+  background-size: 30px 30px;
+  animation: rb-drift 26s linear infinite;
+}
+@keyframes rb-drift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 30px 60px;
+  }
+}
+
+/* Scanning sweep — forest-tinted, sweeps across the capture preview while the
+   agent is working. Low opacity so it reads as a calm progress signal. */
+.scan-sweep {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.scan-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(47, 107, 74, 0.22) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: rb-scan 1.9s ease-in-out infinite;
+}
+.scan-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 83, 45, 0.06);
+}
+@keyframes rb-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Keyboard focus ring — forest, calm, consistent across interactive elements */
+:focus-visible {
+  outline: 2px solid var(--color-forest-soft);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.btn-primary:focus-visible,
+.btn-ghost:focus-visible {
+  outline-offset: 3px;
+}
+
 /* ── React Bits (palette-locked equivalents) ──────────────── */
 
 /* Click Spark — terracotta rays bursting outward */
@@ -219,10 +286,22 @@ h3 {
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
   }
   .rb-star-glow {
     animation: none;
     opacity: 0.5;
+  }
+  .dot-grid-drift {
+    animation: none;
+  }
+  .scan-sweep::before {
+    animation: none;
+    opacity: 0;
   }
 }
