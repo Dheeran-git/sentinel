@@ -44,16 +44,29 @@ def _sse(event: str, data: dict) -> str:
 
 
 def _run_stream(graph_input, cfg):
-    """Yield SSE events for each node update, pausing at interrupts."""
-    for chunk in graph.stream(graph_input, cfg, stream_mode="updates"):
-        if "__interrupt__" in chunk:
-            yield _sse("interrupt", chunk["__interrupt__"][0].value)
-            return
-        for node, update in chunk.items():
-            for ev in update.get("events", []):
-                yield _sse("step", ev)
-            if update.get("status") == "submitted":
-                yield _sse("done", {"tracking_id": update.get("tracking_id")})
+    """Yield SSE events for each node update, pausing at interrupts.
+
+    A mid-mission exception (commonly a Gemini free-tier rate limit) is caught
+    and surfaced as a clean 'error' event instead of breaking the stream.
+    """
+    try:
+        for chunk in graph.stream(graph_input, cfg, stream_mode="updates"):
+            if "__interrupt__" in chunk:
+                yield _sse("interrupt", chunk["__interrupt__"][0].value)
+                return
+            for node, update in chunk.items():
+                for ev in update.get("events", []):
+                    yield _sse("step", ev)
+                if update.get("status") == "submitted":
+                    yield _sse("done", {"tracking_id": update.get("tracking_id")})
+    except Exception as exc:
+        msg = str(exc)
+        if "RESOURCE_EXHAUSTED" in msg or "429" in msg:
+            text = ("The free Gemini tier daily limit was reached. Please try "
+                    "again later; the quota resets each day.")
+        else:
+            text = "The agent hit an error mid-mission. Please try again."
+        yield _sse("error", {"message": text})
 
 
 @app.post("/mission/start")

@@ -18,6 +18,8 @@ export function useMission() {
       else if (event === "step") setSteps((s) => [...s, data as unknown as Step]);
       else if (event === "interrupt") setInterrupt(data as unknown as Interrupt);
       else if (event === "done") setDone(data as unknown as { tracking_id: string });
+      else if (event === "error")
+        setError((data.message as string) ?? "The agent hit an error mid-mission.");
     }
   }
 
@@ -29,7 +31,9 @@ export function useMission() {
     try {
       await consume(gen);
     } catch {
-      setError("Could not reach the agent. Is the backend running?");
+      setError(
+        "Could not reach the agent. It may be offline or rate-limited — try again shortly.",
+      );
     } finally {
       setRunning(false);
     }
