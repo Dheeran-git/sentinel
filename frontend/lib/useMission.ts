@@ -8,6 +8,7 @@ export function useMission() {
   const [threadId, setThreadId] = useState<string>("");
   const [done, setDone] = useState<{ tracking_id: string } | null>(null);
   const [running, setRunning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function consume(
     gen: AsyncGenerator<{ event: string; data: Record<string, unknown> }>,
@@ -20,27 +21,41 @@ export function useMission() {
     }
   }
 
+  /** Wrap consume so a thrown fetch (backend down) surfaces as a calm error. */
+  async function run(
+    gen: AsyncGenerator<{ event: string; data: Record<string, unknown> }>,
+  ) {
+    setRunning(true);
+    try {
+      await consume(gen);
+    } catch {
+      setError("Could not reach the agent. Is the backend running?");
+    } finally {
+      setRunning(false);
+    }
+  }
+
   async function start(image_b64: string, lat?: number, lng?: number) {
     setSteps([]);
     setInterrupt(null);
     setDone(null);
-    setRunning(true);
-    try {
-      await consume(sse("/mission/start", { image_b64, lat, lng }));
-    } finally {
-      setRunning(false);
-    }
+    setError(null);
+    await run(sse("/mission/start", { image_b64, lat, lng }));
   }
 
   async function resume(value: unknown) {
     setInterrupt(null);
-    setRunning(true);
-    try {
-      await consume(sse("/mission/resume", { thread_id: threadId, value }));
-    } finally {
-      setRunning(false);
-    }
+    setError(null);
+    await run(sse("/mission/resume", { thread_id: threadId, value }));
   }
 
-  return { steps, interrupt, done, running, start, resume };
+  /** Clear the mission so the user can file another. */
+  function reset() {
+    setSteps([]);
+    setInterrupt(null);
+    setDone(null);
+    setError(null);
+  }
+
+  return { steps, interrupt, done, running, error, start, resume, reset };
 }

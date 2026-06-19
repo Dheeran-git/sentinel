@@ -13,12 +13,24 @@ export type Routing = {
   recyclers?: Recycler[];
 };
 
+export type Issue = {
+  category: string;
+  severity: string;
+  confidence: number;
+  hazards: string[];
+};
+
+export type Citation = { act: string; section: string; why: string };
+
 export type Artifacts = {
   complaint?: string;
   draft?: string;
   authority?: string;
   dossier_path?: string;
   routing?: Routing;
+  issue?: Issue;
+  citations?: Citation[];
+  sdgs?: string[];
   [key: string]: unknown;
 };
 
